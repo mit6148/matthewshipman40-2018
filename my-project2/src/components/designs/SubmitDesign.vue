@@ -7,20 +7,6 @@
 					<form @submit.prevent="onCreateDesign" id='form'>
 						<h2 class="blue--text darken-1"> Submit a Design</h2>
 						<v-text-field
-							name="firstName"
-							label="First Name"
-							id="firstName"
-							v-model="firstName"
-							required>
-						</v-text-field>
-						<v-text-field
-							name="lastName"
-							label="Last Name"
-							id="lastName"
-							v-model="lastName"
-							required>
-						</v-text-field>
-						<v-text-field
 							name="title"
 							label=" Design Title"
 							id="title"
@@ -76,8 +62,6 @@ import ImageCropper from './ImageCropper'
       data (){
           return {
 						  dialog: true,
-              firstName:'',
-              lastName:'',
               title:'',
               imageUrl: '',
               description:'',
@@ -88,9 +72,7 @@ import ImageCropper from './ImageCropper'
       computed: {
           //form validation code improvements needed
           formIsValid(){
-              return this.firstName !== '' 
-                  && this.lastName !== '' 
-                  && this.title !== '' 
+              return this.title !== '' 
                   && this.description !== '' 
                   && this.imageUrl !== ''
           },
@@ -116,8 +98,6 @@ import ImageCropper from './ImageCropper'
             }
 						this.image.src = this.croppedImageUrl//***
             const designData = {
-                firstName: this.firstName,
-                lastName: this.lastName,
                 title: this.title,
                 image: this.image,
 								imageUrl: this.croppedImageUrl,

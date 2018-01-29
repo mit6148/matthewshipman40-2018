@@ -1,16 +1,17 @@
 <template>
   <div>
-    <!--<div class="banner"></div>-->	
 		<SlideShow></SlideShow> 
-		<p>Add Call to action</p>
+		<br>
+		<div class="logout"><h1> You're Logged Out! </h1></div>
   </div>
+	
 </template>
 
 <script>
 import SlideShow from '@/components/SlideShow'
 
 export default{
-  name: 'Home',
+  name: 'Logout',
   components: {
       SlideShow
   },
@@ -24,6 +25,11 @@ export default{
     background-size: cover;
     height: 500px;
     width: 100%;
+	}
+	
+	.logout{
+		width: 100%;
+		text-align: center
 	}
 </style>
 

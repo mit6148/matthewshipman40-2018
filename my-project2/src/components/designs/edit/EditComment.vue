@@ -7,7 +7,7 @@
       <v-container>
         <v-layout row wrap>
           <v-flex xs12>
-						<v-card-title><b>Edit Design</b></v-card-title>
+						<v-card-title><b>Edit Comment</b></v-card-title>
           </v-flex>
         </v-layout>
         <v-divider></v-divider>
@@ -15,18 +15,11 @@
           <v-flex xs12>
             <v-card-text>
               <v-text-field
-                name="title"
-                label=" Design Title"
-                id="title"
-                v-model="editedTitle"
+                name="comment"
+                label="Comment"
+                id="comment"
+                v-model="editedComment"
                 required>
-              </v-text-field>
-              <v-text-field
-                name="description"
-                label="Description"
-                id="description"
-                v-model="editedDescription"
-                multi-line>
               </v-text-field>
             </v-card-text>
           </v-flex>
@@ -55,26 +48,24 @@
 
 <script> 
   export default {
-      props: ['design'],
+      props: ['comment'],
       data () { 
         return {
           editDialog: false,
-          editedTitle: this.design.title,
-          editedDescription: this.design.description,
+          editedComment: this.comment.comment,
         }
       },
       methods: {
         onSaveChanges(){
-          if (this.editedTitle.trim() === '' ||
-              this.editedDescription.trim() === ''){
+          if (this.editedComment.trim() === '' ||
+              this.editedComment.trim() === ''){
             return         
           }
           this.editDialog = false
-					console.log(this.design)
-          this.$store.dispatch('updateDesignData', {
-              id: this.design.id, 
-              title: this.editedTitle,
-              description: this.editedDescription
+          this.$store.dispatch('updateComment', {
+              id: this.comment.id, 
+              comment: this.editedComment,
+							designId: this.comment.designId
           })
         }
       }

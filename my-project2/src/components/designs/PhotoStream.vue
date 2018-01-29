@@ -12,9 +12,9 @@
 			<DesignCard
 				v-for="design in designs" 
 				:design="design"
-				:modAvailable="true"
+				:modAvailable="false"
 				:key="design.id">
-			</DesignCard>    
+			</DesignCard>
     </div>
   </div>
 </template>
@@ -53,8 +53,7 @@ import DesignCard from '@/components/designs/DesignCard'
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-				justify-content: center;
-				align-items: center;
+				align-items: flex-start;
     }
     
 </style>

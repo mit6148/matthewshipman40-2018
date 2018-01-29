@@ -6,6 +6,7 @@ import SignIn from '@/components/user/SignIn'
 import SignUp from '@/components/user/SignUp'
 import SubmitDesign from '@/components/designs/SubmitDesign'
 import Gallery from '@/components/Gallery'
+import Logout from '@/components/Logout'
 import ModifyStream from '@/components/designs/edit/ModifyStream'
 import AuthGuard from './auth-guard'
 
@@ -15,6 +16,11 @@ export default new Router({
   routes: [
     {
       path: '/',
+      name: 'Index',
+      component: Home
+    },
+		{
+      path: '/home',
       name: 'Home',
       component: Home
     },
@@ -43,6 +49,11 @@ export default new Router({
       name: 'Gallery',
       component: Gallery,
       beforeEnter: AuthGuard
+    },
+			 {
+      path: '/logout',
+      name: 'Logout',
+      component: Logout
     },
     {
       path: '/signin',

@@ -1,6 +1,6 @@
 <template>
 	<div class="submission-container"> 	
-		<div class="design-details">
+		<div class="design-details" :class="setClass">
 			<div class="submission-content" @click="openDescription">
 				<div class="image-container">
 					<img :src="design.imageUrl" class="image">
@@ -12,7 +12,7 @@
 				<div class="text-container">  
 					<div class="submission-info">    
 						<div class="header blue--text darken-1">{{ design.title }}</div>
-						<div class="data"><b>Creator:</b> {{ design.firstName }} {{ design.lastName }}</div>
+						<div class="data"><b>Creator:</b> {{ design.userName }}</div>
 						<div class="data"><b>Submit Date:</b> {{ design.date }} </div>
 						<div class="data"><b>Votes Received: </b> {{ design.votes }}</div>
 						<div class="data"><b>Photo Key: </b> {{ design.id }}</div> 
@@ -25,7 +25,7 @@
 							<v-btn icon @click.stop="onHateDesign()">
 								<v-icon standard>thumb_down</v-icon>
 							</v-btn>
-							<v-btn icon @click.stop="comment">
+							<v-btn icon @click.stop="showCommentFeed">
 								<v-icon standard>insert_comment</v-icon>
 							</v-btn>
 						</v-card-actions>
@@ -37,7 +37,7 @@
 		<div class ="expansion-panel" :class="design.id">
 			<p>{{design.description}}</p>
 		</div>
-		<CommentFeed :design="design"></CommentFeed>
+		<CommentFeed :design="design" :showComments="showComments"></CommentFeed>
 	</div>	
 </template>
 
@@ -52,13 +52,22 @@
 		},
 		data () {
 			return {
-				className: ''
+				showComments: 'false'
 			}
 		},
     computed: {
       userIsAuthenticated () {
         return this.$store.getters.user !== null && this.$store.getters.user !== undefined
       },
+			setClass: {
+				get: function() {
+					return this.$store.getters.userVote(this.design.id)
+				},
+				set: function() {
+			
+				}
+			}
+			
     },  
     methods: {
 			openDescription() {
@@ -105,6 +114,9 @@
       onLoadModifyStream(id){
           this.$router.push('/modifyStream/' + id)
       },
+			showCommentFeed() {
+				this.showComments = !this.showComments
+		}
     },
   } 
 </script>
@@ -117,12 +129,12 @@
     }
     
     .submission-container{
-			width: 370px;
+			width: 550px;
 			margin: 10px;
     }
 		
 		.design-details{
-			border: solid grey 2px;
+			border: solid dodgerblue 5px;
 		}
     
     .submission-content{
@@ -131,32 +143,33 @@
       justify-content: space-between;
 			transition: 0.4s;
 			background-color: white;
-			padding: 10px;
 			cursor: pointer;
     }
     
     .image-container{
       display: flex; 
-      flex-direction: column;
+      flex-direction: column;   
       align-items: center;
       justify-content: center;
+			
     }
     
     .image{
-      height: 140px;
-      width: 140px; 
-      border: solid grey 2px;
+      height: 250px;
+      width: 250px; 
     }
+	
     .modify-button{
       width: 100%
     }
     .text-container{
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+			justify-content: space-between;
+			margin: 10px;
     }
     .submission-info{
-      margin-left: 20px;
+      margin-left: 0px;
     }
 	
     .vote-container{
@@ -166,12 +179,12 @@
         
     }
     .header{
-      font-size: 13px;
+      font-size: 20px;
       margin-bottom: 5px;
     }
 
     .data{
-      font-size: 10px;
+      font-size: 15px;
     }
     
 		.expansion-panel {

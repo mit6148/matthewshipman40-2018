@@ -44,7 +44,7 @@
           flat 
           v-if="userIsAuthenticated"
           @click="onLogout"
-          :to="menuItems[0].link">
+          to="/logout">
           <v-list-tile-action> 
             <v-icon left>lock</v-icon>
           </v-list-tile-action>
@@ -75,7 +75,7 @@
                 ]
             if(this.userIsAuthenticated) {
                 menuItems = [
-                    {icon: 'home', title:'Home = () =>', link: '/'},
+                    {icon: 'home', title:'Home = () =>', link: '/home'},
                     {icon: 'backup', title:'Submit Design = () =>', link: '/submitdesign'},
                     {icon: 'face', title:'Profile = () =>', link: '/profile'},
 										{icon: 'face', title:'Gallery = () =>', link: '/gallery'}
@@ -92,6 +92,7 @@
       onLogout () {
         console.log("logout initiated!")
         this.$store.dispatch('logout')
+				this.$router.push('/logout')
       },
     },
   }
