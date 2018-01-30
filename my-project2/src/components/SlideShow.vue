@@ -1,17 +1,20 @@
 <template>
     <div class="slideshow-container">
-      <div 
-        v-for="article in news" 
-        class="fade banner" 
-        v-show="index % news.length == article.i">
-        <img 
-          :src="article.imageUrl"
-          v-on:mouseover="stopRotation"
-          v-on:mouseout="startRotation">
-        <div class="headline">{{article.headline}}</div>
-      </div>
-      <a class="prev" @click="next">&#10094;</a>
-      <a class="next" @click="prev">&#10095;</a> 
+      <div class="image-container">
+				<a class="prev" @click="next">&#10094;</a>
+				<div 
+					v-for="article in news" 
+					class="fade banner" 
+					v-show="index % news.length == article.i">
+						<img 
+							:src="article.imageUrl"
+							v-on:mouseover="stopRotation"
+							v-on:mouseout="startRotation"
+							class="slides">
+					<div class="headline">{{article.headline}}</div>
+				</div>
+				<a class="next" @click="prev">&#10095;</a> 
+			</div>
       <div class="dotContainer">
         <div 
           v-for="article in news"
@@ -95,25 +98,29 @@ export default{
     }
     
     .slideshow-container {
-      width: 100%;
       position: relative;
       margin: auto;
       margin-top: 0px;
+			padding: 10px;
+			background-color: white;
+			border-bottom: solid lightgrey 5px;
     }
+		
+		.image-container{
+			display: flex;
+			flex-direction: row; 
+			justify-content: space-between;
+			width: 100%;
+		}
+		.banner{
+			margin: auto;
+		}
+		.slides{
+			width: 700px;
+			height: 400px;
+		}
 
     /* Hide the images by default */
-    img {
-        width:100%;
-        height:300px;
-    }
-    
-    .headline{
-        position: absolute; 
-        top:20px; 
-        left:20px;
-        color:lightblue;
-        font-family:'gloria Hallelujah';
-    }
     
     .dotContainer{
         text-align: center;

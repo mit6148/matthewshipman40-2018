@@ -9,22 +9,24 @@ export const store = new Vuex.Store({
 	state:{
 		loadedNews: [
 			{
-				imageUrl: 'static/images/chicken_in_space.jpg', 
-				id: 'q8usbbhjki',
-				headline: 'Welcome to the Units are in Chickens',
+				imageUrl: 'static/images/Code-Quality.png', 
+				id: 'q8usbbhwqoepcnjki',
 				i: 0
 			},
 			{
-				imageUrl: 'static/images/system_dynamics_chicken.jpg', 
-				id: 'qidncghgfe', 
-				headline: 'Contribute a design and become a partner',
+				imageUrl: 'static/images/shit-just-got-real.jpeg', 
+				id: 'qidncghgthbcfe', 
 				i: 1
 			},
 			{
-				imageUrl: 'static/images/chick_final.png',
-				id: '78ujgdqppn',
-				headline: 'Where can you take the chicken',
+				imageUrl: 'static/images/identity-theft.jpg',
+				id: '78ujgdqpprwegwegn',
 				i: 2
+			},
+			{
+				imageUrl: 'static/images/MIT.png',
+				id: 'cwjencopwneppuobbd',
+				i: 3
 			},
 		],
 		loadedDesigns: [],
@@ -554,7 +556,7 @@ export const store = new Vuex.Store({
 			})
 		},
 		featuredNews (state, getters) {
-			return getters.loadedNews.slice(0,2)
+			return getters.loadedNews.slice(0,4)
 		},
 		loadedDesigns (state) {
 			return state.loadedDesigns.sort((designA, designB) => {
