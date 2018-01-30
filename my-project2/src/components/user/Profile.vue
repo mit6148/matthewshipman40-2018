@@ -16,13 +16,6 @@
 					<td align="right"><v-icon>create</v-icon> Edit</td>
 				</tr>
 			</table>
-			<table>
-				<tr>
-					<td><b>Password:</b></td>
-					<td>{{userPassword}}</td>
-					<td align="right"><v-icon>create</v-icon> Edit</td>
-				</tr>
-			</table>
 		</div>
 		
 		<div class="user-generated-content">

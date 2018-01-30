@@ -27,38 +27,7 @@ export const store = new Vuex.Store({
 				i: 2
 			},
 		],
-		loadedDesigns: [
-			{
-				firstName: 'Matt',
-				lastName: 'Shipman',
-				title: 'System Dynamics', 
-				imageUrl: 'static/images/system_dynamics_chicken.jpg',
-				description: "dafasdfasd fas df as df as df as lkasjdlvfa sdkjfsadkjf; lksjadlkfj;lksa dfl sa df klsajdlkf jlksa dfkl sal; kdfj; lkaslj; df;lk saldkf laks kd jf;lask j;fd;lk asl; dfl ;sakj df;masdkfj asdkf jsafsadkfjlkasj;dlkfjlkas jdf kasl; kjdf;ljk as;lk dfjl; asdf;l",  
-				date: "",
-				vote: "",
-				votes: "3",
-			},
-			{
-				firstName: 'Matt',
-				lastName: 'Shipman',
-				title: 'System Dynamics', 
-				imageUrl: 'static/images/system_dynamics_chicken.jpg',
-				description: "dafasdfasd fas df as df as df as lkasjdlvfa sdkjfsadkjf; lksjadlkfj;lksa dfl sa df klsajdlkf jlksa dfkl sal; kdfj; lkaslj; df;lk saldkf laks kd jf;lask j;fd;lk asl; dfl ;sakj df;masdkfj asdkf jsafsadkfjlkasj;dlkfjlkas jdf kasl; kjdf;ljk as;lk dfjl; asdf;l",  
-				date: "",
-				vote: "",
-				votes: "3",
-			},
-			{
-				firstName: 'Matt',
-				lastName: 'Shipman',
-				title: 'System Dynamics', 
-				imageUrl: 'static/images/system_dynamics_chicken.jpg',
-				description: "dafasdfasd fas df as df as df as lkasjdlvfa sdkjfsadkjf; lksjadlkfj;lksa dfl sa df klsajdlkf jlksa dfkl sal; kdfj; lkaslj; df;lk saldkf laks kd jf;lask j;fd;lk asl; dfl ;sakj df;masdkfj asdkf jsafsadkfjlkasj;dlkfjlkas jdf kasl; kjdf;ljk as;lk dfjl; asdf;l",  
-				date: "sdf",
-				vote: "",
-				votes: "3", 
-			},
-		],
+		loadedDesigns: [],
 		user: null,
 		loading: false, 
 		error: null,
@@ -66,15 +35,29 @@ export const store = new Vuex.Store({
 	},
 	mutations:{
 		deleteDesign (state,payload) {
+			let userId = state.user.id
 			//remove from user state
 			let userSubmissions = state.user.designSubmissions
 			userSubmissions.splice(userSubmissions.indexOf(payload), 1)
-			//remove from loaded design state
 			let loadedDesigns = state.loadedDesigns
 			let matchedDesign = loadedDesigns.find((design) => {
 				return design.id === payload.id
 			})
+			let userComments = state.user.comments
+			let designComments = matchedDesign.comments
+			//erase associated comments in user state
+			for(let comment in designComments){
+				if(designComments[comment].creatorId == userId){
+					let userComment = state.user.comments.find((userComment) => {
+						return userComment.id === designComments[comment].id
+					})
+				userComments.splice(userComments.indexOf(userComment), 1)
+				}
+			}
+			//remove from loaded design state
 			loadedDesigns.splice(loadedDesigns.indexOf(matchedDesign), 1)
+			
+			
 		},
 		deleteComment (state,payload) {
 			//remove comment from user state
@@ -123,9 +106,13 @@ export const store = new Vuex.Store({
 	
 		userDesignFeedback (state, payload){
 			let userVote = state.user.userVotes.find((userVote) => {
-					return userVote.id === payload.id
+				return userVote.id === payload.id
 			})
-			console.log(userVote)
+			let targetDesign = state.loadedDesigns.find((design) => {
+				return design.id === payload.id
+			})
+			targetDesign.votes = payload.votes
+			
 			if (userVote == undefined || userVote == null) {
 				state.user.userVotes.push(payload)
 			} else {
@@ -137,22 +124,15 @@ export const store = new Vuex.Store({
 			state.loadedDesigns = payload
 		},
 		createDesign (state, payload) {
+			console.log(payload)
 			state.loadedDesigns.push(payload)
 			state.user.designSubmissions.push({
 				title: payload.title,
 				description: payload.description, 
 				date: payload.date, 
 				imageUrl: payload.imageUrl,
-				id: payload.id
+				id: payload.id,
 				})
-		},
-		createModification (state, payload){	
-			console.log(payload)
-			let parentDesign = state.loadedDesigns.find((design) => {
-					return design.id === payload.parentId
-				})
-			console.log(parentDesign)
-			parentDesign.modifications.push(payload)
 		},
 		
 		updateDesign (state, payload) {
@@ -190,13 +170,19 @@ export const store = new Vuex.Store({
 		},
 	},  
 	
-	
-	
-	
 	actions:{
 		deleteDesign ({commit, getters}, payload){
 			let user = getters.user
-			firebase.database().ref('designs/').update({[payload.id]: null})	
+			console.log(payload)
+			firebase.database().ref('/designs/' + payload.id).once('value').then((data) => {
+				console.log(data.val().comments)
+				for(let commentId in data.val().comments){
+					let creatorId = data.val().comments[commentId].creatorId
+					firebase.database().ref('users/' + creatorId + '/comments').update({[commentId]: null})
+				}	
+			}).then(() =>{
+				firebase.database().ref('designs/').update({[payload.id]: null})
+			})
 			firebase.database().ref('users/' + user.id + "/designSubmissions").update({[payload.id]: null})
 			commit('deleteDesign', payload)
 		},
@@ -212,8 +198,8 @@ export const store = new Vuex.Store({
 			let user = getters.user
 			const comment = {
 				comment: payload.comment,
-				userId: user.id,
-				userName: user.userName
+				creatorId: user.id, 
+				creatorName: user.userName
 			} 
 			firebase.database().ref('designs/' + payload.designId + '/comments/').push(comment)
 			.then((data) => {
@@ -227,8 +213,8 @@ export const store = new Vuex.Store({
 				.then((key) => {
 					commit('addComment', {
 						comment: payload.comment, 
-						userId: user.id,
-						userName: user.userName,
+						creatorId: user.id,
+						creatorName: user.userName,
 						id: key,
 						designId: payload.designId,
 					})
@@ -249,37 +235,25 @@ export const store = new Vuex.Store({
 					const designs = []
 					const obj = data.val()
 					for (let key in obj) {
-						let mods = []
 						let comments = []
 						for (let comment in obj[key].comments){
 							comments.push({
 								id: comment,
 								comment: obj[key].comments[comment].comment,
-								userId: obj[key].comments[comment].userId,
-								userName: obj[key].comments[comment].userName
+								creatorId: obj[key].comments[comment].creatorId,
+								creatorName: obj[key].comments[comment].creatorName
 							})
-						}
-						for (let mod in obj[key].modifications){
-							mods.push({
-								id: mod,
-								userName: obj[key].modifications[mod].userName,
-								imageUrl: obj[key].modifications[mod].imageUrl,
-								date: obj[key].modifications[mod].date,
-								creatorId: obj[key].modifications[mod].creatorId,
-								parentId: obj[key].modifications[mod].parentId,
-								imageUrl: obj[key].modifications[mod].imageUrl, 
-							})	
 						}
 						designs.push({
 							id:key, 
-							userName: obj[key].userName, 
+							creatorName: obj[key].creatorName, 
 							title: obj[key].title,
 							imageUrl: obj[key].imageUrl,
 							description: obj[key].description,
 							date: obj[key].date,
 							creatorId: obj[key].creatorId,
+							votes: obj[key].votes,
 							comments: comments,
-							modifications: mods
 						})
 					}
 					commit('setLoadedDesigns', designs)
@@ -294,13 +268,18 @@ export const store = new Vuex.Store({
 		},
 		
 		onFeedback({commit, getters}, payload){
-			  let userId = getters.user.id
-				const feedback = {
-					id: payload.designId, 
-					vote: payload.feedback
-				}
+			let userId = getters.user.id
 			firebase.database().ref('/users/' + userId + '/designFeedback').update({[payload.designId]: payload.feedback})
-			commit('userDesignFeedback', feedback)
+			firebase.database().ref('/designs/' + payload.designId + '/votes/').once('value').then((data) => {
+				let votes = data.val() + payload.scoreChange
+				let feedback = {
+					id: payload.designId, 
+					vote: payload.feedback,
+					votes: votes
+				}
+				firebase.database().ref('/designs/' + payload.designId).update({votes: votes})
+				commit('userDesignFeedback', feedback)
+			})
 		},
 	
 		createDesign ({commit, getters}, payload){
@@ -317,10 +296,10 @@ export const store = new Vuex.Store({
 				description: payload.description,
 				date: payload.date.toISOString(),
 				imageUrl: payload.imageUrl,
-				userName: userName,
+				creatorName: userName,
 				creatorId: userId,
-				modifications: [], 
-				comments: []
+				comments: [],
+				votes: 0
 			}
 			//reaach out to fire base
 			let imageUrl
@@ -348,46 +327,6 @@ export const store = new Vuex.Store({
 					console.log(error)
 				})
 			
-		},
-		
-	createModification({commit, getters}, payload){
-			let userId = getters.user.id
-			const modification = {
-				firstName: payload.firstName, 
-				lastName: payload.lastName,
-				title: payload.title,
-				description: payload.description,
-				date: payload.date.toISOString(),
-				creatorId: getters.user.id,
-				parentId: payload.parentId,
-				imageUrl: payload.imageUrl,
-				comments: []
-			}
-			//reaach out to fire base
-			let imageUrl
-			let key
-			firebase.database().ref('designs/' + payload.parentId + '/modifications').push(modification)
-				.then((data) => {
-					key = data.key
-					return key
-				})
-				.then(key => {
-					const filename = payload.image.name
-					const ext = filename.slice(filename.lastIndexOf('.'))
-					return firebase.storage().ref('designs/' + key + '.' + ext).put(payload.image)
-				})
-				.then(() => {
-					firebase.database().ref('/users/' + userId + '/designSubmissions').push(modification)
-				})
-				.then(() => {
-					commit('createModification', {
-						...modification, 
-						id: key
-					})
-				})
-				.catch((error) => {
-					console.log(error)
-				})
 		},
 		
 		updateDesignData({commit, getters}, payload) {
@@ -440,7 +379,6 @@ export const store = new Vuex.Store({
 								id: user.uid,
 								userName: payload.userName,
 								email: payload.email,
-								password: payload.password,
 								designSubmissions: [],
 								userVotes: [],
 								comments: []
@@ -449,7 +387,6 @@ export const store = new Vuex.Store({
 							firebase.database().ref('users/' + user.uid).update({
 								userName: payload.userName,
 								email: payload.email,
-								password: payload.password,
 								designSubmissions: [],
 								userVotes: [],
 								comments: []
@@ -481,7 +418,6 @@ export const store = new Vuex.Store({
 								id: user.uid,
 								email: payload.email,
 								userName: '',
-								password: payload.password,
 								designSubmissions: [],
 								userVotes: [],
 								comments: []
@@ -551,7 +487,6 @@ export const store = new Vuex.Store({
 							id: userId,
 							userName: data.val().userName,
 							email: data.val().email,
-							password: data.val().password,
 							designSubmissions: designSubmissions,
 							userVotes: userVotes,
 							comments: comments
@@ -582,9 +517,6 @@ export const store = new Vuex.Store({
     },
 	},
 	
-	
-	
-	
 	loadDesigns ({commit}) {
 			commit('setLoading', true)
 			firebase.database().ref('designs').once('value')
@@ -592,20 +524,6 @@ export const store = new Vuex.Store({
 					const designs = []
 					const obj = data.val()
 					for (let key in obj) {
-						let mods = []
-						for (let mod in obj[key].modifications){
-							mods.push({
-								id: mod,
-								firstName: obj[key].modifications[mod].firstName,
-								lastName: obj[key].modifications[mod].lastName,
-								imageUrl: obj[key].modifications[mod].imageUrl,
-								date: obj[key].modifications[mod].date,
-								creatorId: obj[key].modifications[mod].creatorId,
-								parentId: obj[key].modifications[mod].parentId,
-								imageUrl: obj[key].modifications[mod].imageUrl,
-								comments: obj[key].modifications[mod].comments
-							})	
-						}
 						designs.push({
 							id:key, 
 							firstName: obj[key].firstName,
@@ -616,7 +534,6 @@ export const store = new Vuex.Store({
 							date: obj[key].date,
 							creatorId: obj[key].creatorId,
 							comments: obj[key].comments,
-							modifications: mods
 						})
 					}
 					commit('setLoadedDesigns', designs)
@@ -668,10 +585,6 @@ export const store = new Vuex.Store({
 		croppedImageUrl (state) {
 				return state.croppedImageUrl
 		},
-		//userVote (state, getters) {
-		//	const user = getters.user
-		//	return user.userVotes.payload
-		//},
 		userVote (state){
 			return (designId) => {
 				let userVote = state.user.userVotes.find((userVote) => {

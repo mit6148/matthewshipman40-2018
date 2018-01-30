@@ -5,7 +5,7 @@
 				v-for="comment in design.comments.slice(0,loadedComments)" 
 				class="comment"
 				:key="comment.id">
-				<p><b>{{ comment.userName }}: </b> {{ comment.comment }}</p>
+				<p><b>{{ comment.creatorName }}: </b> {{ comment.comment }}</p>
 			</div>
 			<div class="expander-container">
 				<v-icon standard @click='openMoreComments' v-if="loadedComments < design.comments.length">expand_more</v-icon>

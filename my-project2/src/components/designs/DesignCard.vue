@@ -12,7 +12,7 @@
 				<div class="text-container">  
 					<div class="submission-info">    
 						<div class="header blue--text darken-1">{{ design.title }}</div>
-						<div class="data"><b>Creator:</b> {{ design.userName }}</div>
+						<div class="data"><b>Creator:</b> {{ design.creatorName }}</div>
 						<div class="data"><b>Submit Date:</b> {{ design.date }} </div>
 						<div class="data"><b>Votes Received: </b> {{ design.votes }}</div>
 						<div class="data"><b>Photo Key: </b> {{ design.id }}</div> 
@@ -81,15 +81,18 @@
 			},
       onLikeDesign() {
 				let feedback = this.$store.getters.userVote(this.design.id)
-				console.log(feedback)
+				let scoreChange = 0
 				if (feedback == '' || feedback == undefined || feedback == null || feedback == 'hate'){
 					feedback = 'like'
+					scoreChange = 1 
 				} else {
 					feedback = ''
+					scoreChange = -1
 				}
 				let payload = {
 					designId: this.design.id, 
-					feedback: feedback
+					feedback: feedback,
+					scoreChange: scoreChange
 				}
 				this.$store.dispatch('onFeedback', payload) 
 				this.setClass = feedback
@@ -97,15 +100,20 @@
 			
       onHateDesign() {
 				let feedback = this.$store.getters.userVote(this.design.id)
+				let scoreChange = 0
 				console.log(feedback)
-				if (feedback == '' || feedback == undefined || feedback == null || feedback == 'like'){
+				if (feedback == '' || feedback == undefined || feedback == null){
 					feedback = 'hate'
-				} else {
+				} else if (feedback == 'hate'){
 					feedback = ''
+				} else {
+					scoreChange = -1
+					feedback = 'hate'
 				}
 				let payload = {
 					designId: this.design.id, 
-					feedback: feedback
+					feedback: feedback,
+					scoreChange: scoreChange
 				}
 				this.$store.dispatch('onFeedback', payload) 
 				 this.setClass = feedback
